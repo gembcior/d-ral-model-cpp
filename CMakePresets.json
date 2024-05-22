@@ -1,0 +1,64 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+    {
+      "name": "production",
+      "hidden": true,
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_SKIP_INSTALL_ALL_DEPENDENCY": true,
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/output/install",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "d-ral-model",
+      "displayName": "D-RAL Model Configuration",
+      "inherits": "production",
+      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo"
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "d-ral-model-tgz",
+      "displayName": "D-RAL Model tar.gz Package",
+      "description": "Preset for generation D-RAL model tar.gz package",
+      "configurePreset": "d-ral-model",
+      "variables": {
+        "CPACK_PROJECT_CONFIG_FILE": "${sourceDir}/cmake/cpack/ArchiveConfig.cmake"
+      },
+      "packageVersion": "$penv{DRAL_MODEL_VERSION}",
+      "packageDirectory": "${sourceDir}/output/package",
+      "generators": [
+        "TGZ"
+      ]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "release",
+      "displayName": "Release D-RAL Model tar.gz Package",
+      "description": "Workflow for releasing the D-RAL model as the tar.gz package",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "d-ral-model"
+        },
+        {
+          "type": "package",
+          "name": "d-ral-model-tgz"
+        }
+      ]
+    }
+  ]
+}

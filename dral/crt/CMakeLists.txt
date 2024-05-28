@@ -1,1 +1,1 @@
-add_subdirectory(stm32f429)
+add_subdirectory(cortex-m4)

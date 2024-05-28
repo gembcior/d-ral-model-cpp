@@ -2,3 +2,11 @@ output
 build
 
 project.duck.py
+
+.venv
+venv
+
+**/output.xml
+**/log.html
+**/report.html
+**/robot_output.xml

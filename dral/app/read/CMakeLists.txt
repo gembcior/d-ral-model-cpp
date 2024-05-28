@@ -1,3 +1,5 @@
+include(DralUtils)
+
 add_executable(read)
 
 target_sources(read
@@ -7,6 +9,7 @@ target_sources(read
 
 target_link_libraries(read
   PRIVATE
-    crt::stm32f429
-    dral::stm32f429
+    crt::cortex::m4
 )
+
+generate_target_listing(read)

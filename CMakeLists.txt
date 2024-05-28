@@ -21,6 +21,42 @@ endif()
 
 include(CPack)
 
+include(DralUtils)
+
+add_compile_options(
+  "-Wall"
+  "-Werror"
+  "-Wextra"
+  "-Wshadow"
+  "-Wundef"
+  "-Wconversion"
+  "-Wno-unused-parameter"
+  "-Wdouble-promotion"
+  "-Wformat=2"
+  "-Wformat-overflow"
+  "-Wformat-truncation"
+)
+
+add_compile_options(
+  "-fno-common"
+  "-fno-exceptions"
+  "-fno-unwind-tables"
+  "-ffunction-sections"
+  "-fdata-sections"
+  "-fstack-usage"
+  "-ffast-math"
+
+  "-fno-builtin"
+)
+add_cxx_compile_options(
+  "-fno-rtti"
+  "-fno-threadsafe-statics"
+  "-fno-use-cxa-atexit"
+)
+add_link_options(
+  "-Wl,--no-warn-rwx-segment"
+)
+
 add_subdirectory(model)
 add_subdirectory(regs)
 add_subdirectory(dral)

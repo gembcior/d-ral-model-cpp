@@ -1,0 +1,13 @@
+:name: D-RAL read
+:description: This script runs D-RAL read
+
+using sysbus
+$name?="dral"
+mach create $name
+machine LoadPlatformDescription @renode/platforms/arm-cortex-m4.repl
+
+cpu PerformanceInMips 100
+
+$bin?=@output/dral/app/read/read
+
+sysbus LoadELF $bin

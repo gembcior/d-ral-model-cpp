@@ -6,11 +6,9 @@ nvic: IRQControllers.NVIC @ sysbus 0xE000E000
     systickFrequency: 72000000
     IRQ -> cpu@0
 
-
 cpu: CPU.CortexM @ sysbus
     cpuType: "cortex-m4"
     nvic: nvic
 
-sysbus:
-    init:
-        Tag <0x40000000, 0x401FFFFF> "DRAL"
+dral: Memory.MappedMemory @ sysbus 0x40000000
+    size: 0x00200000

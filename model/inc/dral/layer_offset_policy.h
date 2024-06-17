@@ -27,14 +27,16 @@
 #ifndef DRAL_LAYER_OFFSET_POLICY_H
 #define DRAL_LAYER_OFFSET_POLICY_H
 
+#include <array>
 #include <cstdint>
+#include <utility>
 
 namespace dral {
 
 /**
  * Layer Offset Policy
  */
-template<std::uintptr_t Offset, typename IndexValueType = std::size_t>
+template<typename IndexValueType, std::uintptr_t Offset>
 class LayerOffsetPolicy
 {
 public:
@@ -47,6 +49,27 @@ public:
   }
 
   static_assert(Offset > 0);
+};
+
+template<typename IndexValueType, typename Offsets>
+class NonUniformLayerOffsetPolicy;
+
+template<typename IndexValueType, std::uintptr_t... Offsets>
+class NonUniformLayerOffsetPolicy<std::integer_sequence<std::uintptr_t, Offsets...>, IndexValueType>
+{
+  static_assert(sizeof...(Offsets) > 2);
+
+  static constexpr std::size_t GroupsCount{ sizeof...(Offsets) };
+
+  using IndexType = IndexValueType;
+
+  using OffsetsSequence = std::integer_sequence<std::uintptr_t, Offsets...>;
+
+  static constexpr std::uintptr_t getOffset(IndexType index)
+  {
+    constexpr std::array OffsetsValues{ Offsets... };
+    return OffsetsValues[static_cast<std::size_t>(index)];
+  }
 };
 
 }

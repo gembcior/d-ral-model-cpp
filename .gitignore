@@ -10,3 +10,5 @@ venv
 **/log.html
 **/report.html
 **/robot_output.xml
+logs
+snapshots

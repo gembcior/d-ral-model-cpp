@@ -25,7 +25,25 @@
       "name": "d-ral-model",
       "displayName": "D-RAL Model Configuration",
       "inherits": "production",
-      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo"
+      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/model"
+    },
+    {
+      "name": "stm32f411",
+      "displayName": "STM32F411 Configuration",
+      "inherits": "production",
+      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/stm32f411",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/stm32f411.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "stm32f411",
+      "configurePreset": "stm32f411",
+      "targets": [
+        "stm32f411"
+      ]
     }
   ],
   "packagePresets": [
@@ -57,6 +75,21 @@
         {
           "type": "package",
           "name": "d-ral-model-tgz"
+        }
+      ]
+    },
+    {
+      "name": "stm32f411",
+      "displayName": "STM32F411 Build",
+      "description": "Workflow for building the STM32F411 example",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "stm32f411"
+        },
+        {
+          "type": "build",
+          "name": "stm32f411"
         }
       ]
     }

@@ -2,6 +2,7 @@ output
 build
 
 project.duck.py
+duckproject.toml
 
 .venv
 venv
@@ -12,3 +13,7 @@ venv
 **/robot_output.xml
 logs
 snapshots
+
+compile_commands.json
+
+.cache

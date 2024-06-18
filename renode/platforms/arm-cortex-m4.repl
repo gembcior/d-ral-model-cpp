@@ -9,6 +9,3 @@ nvic: IRQControllers.NVIC @ sysbus 0xE000E000
 cpu: CPU.CortexM @ sysbus
     cpuType: "cortex-m4"
     nvic: nvic
-
-dral: Memory.MappedMemory @ sysbus 0x40000000
-    size: 0x00200000

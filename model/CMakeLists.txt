@@ -1,10 +1,10 @@
 add_library(dral_model INTERFACE)
 
+add_library(dral::model ALIAS dral_model)
+
 target_include_directories(dral_model INTERFACE
   inc
 )
-
-add_library(dral::model ALIAS dral_model)
 
 install(FILES
   inc/dral/bitfield_model.h

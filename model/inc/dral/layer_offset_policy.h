@@ -55,10 +55,9 @@ template<typename IndexValueType, typename Offsets>
 class NonUniformLayerOffsetPolicy;
 
 template<typename IndexValueType, std::uintptr_t... Offsets>
-class NonUniformLayerOffsetPolicy<std::integer_sequence<std::uintptr_t, Offsets...>, IndexValueType>
+class NonUniformLayerOffsetPolicy<IndexValueType, std::integer_sequence<std::uintptr_t, Offsets...>>
 {
-  static_assert(sizeof...(Offsets) > 2);
-
+public:
   static constexpr std::size_t GroupsCount{ sizeof...(Offsets) };
 
   using IndexType = IndexValueType;
@@ -70,6 +69,8 @@ class NonUniformLayerOffsetPolicy<std::integer_sequence<std::uintptr_t, Offsets.
     constexpr std::array OffsetsValues{ Offsets... };
     return OffsetsValues[static_cast<std::size_t>(index)];
   }
+
+  static_assert(sizeof...(Offsets) > 2);
 };
 
 }

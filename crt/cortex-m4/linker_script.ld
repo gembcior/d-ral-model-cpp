@@ -1,13 +1,12 @@
 ENTRY(ResetHandler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20100000;    /* end of RAM */
+_estack = 0x10100000;    /* end of RAM */
 
 /* Specify the memory areas */
 MEMORY
 {
-  RAM (xrw): ORIGIN = 0x20000000, LENGTH = 1024K
-  DRAL (rw): ORIGIN = 0x40000000, LENGTH = 2048K
+  RAM (xrw): ORIGIN = 0x10000000, LENGTH = 1024K
 }
 
 /* Define output sections */

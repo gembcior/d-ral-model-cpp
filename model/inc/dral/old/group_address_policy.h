@@ -32,6 +32,9 @@
 
 namespace dral {
 
+/**
+ * Indices Type Extractor
+ */
 template<typename T>
 class DefaultTypeExtractor
 {
@@ -56,10 +59,11 @@ struct ExtractedTypesTuple<TypeExtractor, Tuple, std::index_sequence<Index...>>
 };
 
 template<typename Tuple, template<typename> class TypeExtractor = DefaultTypeExtractor>
-using IndicesTypesTuple = typename ExtractedTypesTuple<TypeExtractor,
-                                                       Tuple,
-                                                       std::make_index_sequence<std::tuple_size_v<Tuple>>>::type;
+using IndicesTypesTuple = typename ExtractedTypesTuple<TypeExtractor, Tuple, std::make_index_sequence<std::tuple_size_v<Tuple>>>::type;
 
+/**
+ * Group Address Policy
+ */
 template<std::uintptr_t Address, typename OffsetPolicy = void>
 class GroupAddressPolicy;
 
@@ -74,29 +78,30 @@ public:
   template<std::size_t I>
   using LayerPolicy = std::tuple_element_t<I, Layers>;
 
-  [[nodiscard]] static constexpr auto getBaseAddress()
+public:
+  static constexpr std::uintptr_t getBaseAddress()
   {
     return Address;
   }
 
-  [[nodiscard]] static constexpr auto getAddress(const IndexType& index)
+  static std::uintptr_t getAddress(const IndexType& index)
   {
     return Address + getOffset<LayersCount - 1>(index);
   }
 
   template<typename... Index>
-  [[nodiscard]] static constexpr auto getAddress(Index&&... index)
+  static std::uintptr_t getAddress(Index&&... index)
   {
     static_assert(sizeof...(Index) == LayersCount, "The number of indices must match the number of layers.");
-    const auto indexValue{IndexType(std::forward<Index>(index)...)};
+    const auto indexValue{ IndexType(std::forward<Index>(index)...) };
     return getAddress(indexValue);
   }
 
 private:
   template<std::size_t Index>
-  [[nodiscard]] static constexpr auto getOffset(const IndexType& index)
+  static constexpr std::uintptr_t getOffset(const IndexType& index)
   {
-    const auto offset{LayerPolicy<Index>::getOffset(std::get<Index>(index))};
+    const std::uintptr_t offset{ LayerPolicy<Index>::getOffset(std::get<Index>(index)) };
     if constexpr (Index > 0) {
       return offset + getOffset<Index - 1>(index);
     }
@@ -108,33 +113,35 @@ template<std::uintptr_t Address, typename OffsetPolicy>
 class GroupAddressPolicy<Address, std::tuple<OffsetPolicy>>
 {
 public:
-  static constexpr std::size_t LayersCount{1};
+  static constexpr std::size_t LayersCount = 1;
   using IndexType = typename OffsetPolicy::IndexType;
   using LayerPolicy = OffsetPolicy;
 
-  [[nodiscard]] static constexpr auto getBaseAddress()
+public:
+  static constexpr std::uintptr_t getBaseAddress()
   {
     return Address;
   }
 
-  [[nodiscard]] static constexpr auto getAddress(const IndexType& index)
+  static std::uintptr_t getAddress(const IndexType& index)
   {
     return Address + OffsetPolicy::getOffset(index);
   }
 };
 
-template<std::uintptr_t Address>
+template<uintptr_t Address>
 class GroupAddressPolicy<Address, void>
 {
 public:
-  static constexpr std::size_t LayersCount{0};
+  static constexpr std::size_t LayersCount = 0;
 
-  [[nodiscard]] static constexpr auto getBaseAddress()
+public:
+  static constexpr std::uintptr_t getBaseAddress()
   {
     return Address;
   }
 
-  [[nodiscard]] static constexpr auto getAddress()
+  static constexpr uintptr_t getAddress()
   {
     return Address;
   }
@@ -142,4 +149,4 @@ public:
 
 }
 
-#endif  // DRAL_GROUP_ADDRESS_POLICY_H
+#endif /* DRAL_GROUP_ADDRESS_POLICY_H */

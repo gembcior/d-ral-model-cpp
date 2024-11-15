@@ -24,52 +24,51 @@
 //
 // ==================================================================================
 
-#ifndef DRAL_REGISTER_MODEL_H
-#define DRAL_REGISTER_MODEL_H
+#ifndef DRAL_FIELD_MODEL_TRAITS_H
+#define DRAL_FIELD_MODEL_TRAITS_H
 
 #include "access_type.h"
+#include "field_model.h"
+#include "register_model_traits.h"
 
 #include <cstdint>
 #include <utility>
 
 namespace dral {
 
-template<typename RegType, typename AddressPolicy, AccessType Access = AccessType::ReadWrite>
-class RegisterModel
+template<typename ModelType>
+class FieldModelTraits;
+
+template<typename RegisterModel, std::size_t Position, std::size_t Width, typename FieldType, AccessType Access>
+class FieldModelTraits<FieldModel<RegisterModel, Position, Width, FieldType, Access>>
 {
-  static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
-  static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
-
 public:
-  using SizeType = decltype(RegType::value);
-  using RegValue = RegType;
+  using RegisterModelType = RegisterModel;
 
   template<typename... Index>
-    requires IsReadable
-  [[nodiscard]] static auto read(Index&&... index)
+  static constexpr std::uintptr_t address(Index&&... index)
   {
-    volatile const auto* const regptr{
-        reinterpret_cast<volatile const SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    return RegValue{*regptr};
+    return RegisterModelTraits<RegisterModel>::address(std::forward<Index>(index)...);
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const SizeType value, Index&&... index)
+  static constexpr std::size_t position()
   {
-    volatile auto* const regptr{
-        reinterpret_cast<volatile SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    *regptr = value;
+    return Position;
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const RegValue& reg, Index&&... index)
-
+  static constexpr std::size_t width()
   {
-    write(reg.value, std::forward<Index>(index)...);
+    return Width;
+  }
+
+  using FieldValue = FieldType;
+
+  static constexpr AccessType access()
+  {
+    return Access;
   }
 };
-}
 
-#endif  // DRAL_REGISTER_MODEL_H
+}  // namespace dral
+
+#endif  // DRAL_FIELD_MODEL_TRAITS_H

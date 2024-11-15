@@ -24,52 +24,68 @@
 //
 // ==================================================================================
 
-#ifndef DRAL_REGISTER_MODEL_H
-#define DRAL_REGISTER_MODEL_H
+#ifndef DRAL_FIELD_MODEL_H
+#define DRAL_FIELD_MODEL_H
 
 #include "access_type.h"
+#include "mask_policy.h"
+#include "register_model_traits.h"
 
 #include <cstdint>
 #include <utility>
 
 namespace dral {
 
-template<typename RegType, typename AddressPolicy, AccessType Access = AccessType::ReadWrite>
-class RegisterModel
+template<typename RegisterModel,
+         std::size_t Position,
+         std::size_t Width,
+         typename FieldType = typename RegisterModelTraits<RegisterModel>::SizeType,
+         AccessType Access = RegisterModelTraits<RegisterModel>::access()>
+class FieldModel
 {
+  static_assert((Access & RegisterModelTraits<RegisterModel>::access()) == Access,
+                "Field model access must be supported by register model access.");
+
   static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
   static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
+  using IsReadWrite = std::bool_constant<Access == AccessType::ReadWrite>;
+  using Mask = MaskPolicy<typename RegisterModelTraits<RegisterModel>::SizeType, Position, Width, FieldType>;
 
 public:
-  using SizeType = decltype(RegType::value);
-  using RegValue = RegType;
+  using FieldValue = FieldType;
 
   template<typename... Index>
     requires IsReadable
-  [[nodiscard]] static auto read(Index&&... index)
+  [[nodiscard]] static FieldValue read(Index&&... index)
   {
-    volatile const auto* const regptr{
-        reinterpret_cast<volatile const SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    return RegValue{*regptr};
+    const auto rawValue{RegisterModel::read(std::forward<Index>(index)...).value};
+    return Mask::fromUnderlyingValue(rawValue);
   }
 
   template<typename... Index>
     requires IsWritable
-  static void write(const SizeType value, Index&&... index)
+  static void write(const FieldValue value, Index&&... index)
   {
-    volatile auto* const regptr{
-        reinterpret_cast<volatile SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    *regptr = value;
+    write(IsReadWrite{}, value, std::forward<Index>(index)...);
+  }
+
+private:
+  template<typename... Index>
+  static void write(std::true_type, const FieldValue value, Index&&... index)
+  {
+    const auto oldValue{RegisterModel::read(std::forward<Index>(index)...).value};
+    const auto newValue{Mask::updateUnderlyingValue(oldValue, value)};
+    RegisterModel::write(newValue, std::forward<Index>(index)...);
   }
 
   template<typename... Index>
-    requires IsWritable
-  static void write(const RegValue& reg, Index&&... index)
-
+  static void write(std::false_type, const FieldValue value, Index&&... index)
   {
-    write(reg.value, std::forward<Index>(index)...);
+    const auto newValue{Mask::toUnderlyingValue(value)};
+    RegisterModel::write(newValue, std::forward<Index>(index)...);
   }
 };
-}
+
+}  // namespace dral
 
 #endif  // DRAL_REGISTER_MODEL_H

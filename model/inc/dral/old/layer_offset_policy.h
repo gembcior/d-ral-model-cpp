@@ -24,52 +24,55 @@
 //
 // ==================================================================================
 
-#ifndef DRAL_REGISTER_MODEL_H
-#define DRAL_REGISTER_MODEL_H
+#ifndef DRAL_LAYER_OFFSET_POLICY_H
+#define DRAL_LAYER_OFFSET_POLICY_H
 
-#include "access_type.h"
-
+#include <array>
 #include <cstdint>
 #include <utility>
 
 namespace dral {
 
-template<typename RegType, typename AddressPolicy, AccessType Access = AccessType::ReadWrite>
-class RegisterModel
+/**
+ * Layer Offset Policy
+ */
+template<typename IndexValueType, std::uintptr_t Offset>
+class LayerOffsetPolicy
 {
-  static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
-  static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
+public:
+  using IndexType = IndexValueType;
 
 public:
-  using SizeType = decltype(RegType::value);
-  using RegValue = RegType;
-
-  template<typename... Index>
-    requires IsReadable
-  [[nodiscard]] static auto read(Index&&... index)
+  static constexpr std::uintptr_t getOffset(IndexType index)
   {
-    volatile const auto* const regptr{
-        reinterpret_cast<volatile const SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    return RegValue{*regptr};
+    return Offset * static_cast<std::size_t>(index);
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const SizeType value, Index&&... index)
-  {
-    volatile auto* const regptr{
-        reinterpret_cast<volatile SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    *regptr = value;
-  }
-
-  template<typename... Index>
-    requires IsWritable
-  static void write(const RegValue& reg, Index&&... index)
-
-  {
-    write(reg.value, std::forward<Index>(index)...);
-  }
+  static_assert(Offset > 0);
 };
+
+template<typename IndexValueType, typename Offsets>
+class NonUniformLayerOffsetPolicy;
+
+template<typename IndexValueType, std::uintptr_t... Offsets>
+class NonUniformLayerOffsetPolicy<IndexValueType, std::integer_sequence<std::uintptr_t, Offsets...>>
+{
+public:
+  static constexpr std::size_t GroupsCount{ sizeof...(Offsets) };
+
+  using IndexType = IndexValueType;
+
+  using OffsetsSequence = std::integer_sequence<std::uintptr_t, Offsets...>;
+
+  static constexpr std::uintptr_t getOffset(IndexType index)
+  {
+    constexpr std::array OffsetsValues{ Offsets... };
+    return OffsetsValues[static_cast<std::size_t>(index)];
+  }
+
+  static_assert(sizeof...(Offsets) > 2);
+};
+
 }
 
-#endif  // DRAL_REGISTER_MODEL_H
+#endif /* DRAL_LAYER_OFFSET_POLICY_H */

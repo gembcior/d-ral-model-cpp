@@ -17,8 +17,6 @@ endif()
 
 include(CPack)
 
-include(DralUtils)
-
 add_compile_options(
   "-Wall"
   "-Werror"
@@ -49,9 +47,9 @@ add_cxx_compile_options(
   "-fno-threadsafe-statics"
   "-fno-use-cxa-atexit"
 )
-add_link_options(
-  "-Wl,--no-warn-rwx-segment"
-)
+# add_link_options(
+#   "-Wl,--no-warn-rwx-segment"
+# )
 
 add_subdirectory(model)
 add_subdirectory(regs)

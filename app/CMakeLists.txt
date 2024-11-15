@@ -1,2 +1,1 @@
-add_subdirectory(read)
-add_subdirectory(stm32f411)
+add_subdirectory(model)

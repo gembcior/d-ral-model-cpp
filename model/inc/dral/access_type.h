@@ -24,52 +24,18 @@
 //
 // ==================================================================================
 
-#ifndef DRAL_REGISTER_MODEL_H
-#define DRAL_REGISTER_MODEL_H
-
-#include "access_type.h"
-
-#include <cstdint>
-#include <utility>
+#ifndef DRAL_ACCESS_TYPE_H
+#define DRAL_ACCESS_TYPE_H
 
 namespace dral {
 
-template<typename RegType, typename AddressPolicy, AccessType Access = AccessType::ReadWrite>
-class RegisterModel
+enum AccessType
 {
-  static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
-  static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
-
-public:
-  using SizeType = decltype(RegType::value);
-  using RegValue = RegType;
-
-  template<typename... Index>
-    requires IsReadable
-  [[nodiscard]] static auto read(Index&&... index)
-  {
-    volatile const auto* const regptr{
-        reinterpret_cast<volatile const SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    return RegValue{*regptr};
-  }
-
-  template<typename... Index>
-    requires IsWritable
-  static void write(const SizeType value, Index&&... index)
-  {
-    volatile auto* const regptr{
-        reinterpret_cast<volatile SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    *regptr = value;
-  }
-
-  template<typename... Index>
-    requires IsWritable
-  static void write(const RegValue& reg, Index&&... index)
-
-  {
-    write(reg.value, std::forward<Index>(index)...);
-  }
+  ReadOnly = 0x1,
+  WriteOnly = 0x2,
+  ReadWrite = ReadOnly | WriteOnly
 };
-}
 
-#endif  // DRAL_REGISTER_MODEL_H
+}  // namespace dral
+
+#endif  // DRAL_ACCESS_TYPE_H

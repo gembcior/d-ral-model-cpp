@@ -27,129 +27,40 @@
 #ifndef DRAL_BITFIELD_MODEL_H
 #define DRAL_BITFIELD_MODEL_H
 
+#include "mask_policy.h"
+
 #include <cstdint>
-#include <limits>
 
 namespace dral {
 
-/**
- * Bit Field Mode Template
- */
-template<typename SizeType, std::size_t Position, std::size_t Width = 1>
+template<typename SizeType, std::size_t Position, std::size_t Width, typename FieldType = SizeType>
 class BitFieldModel
 {
+private:
+  using Mask = MaskPolicy<SizeType, Position, Width, FieldType>;
+
 public:
-  static constexpr std::size_t getWidth()
-  {
-    return Width;
-  }
+  using FieldValue = FieldType;
 
-  static constexpr std::size_t getPosition()
-  {
-    return Position;
-  }
+  BitFieldModel() = default;
+  BitFieldModel(const BitFieldModel& other) = default;
 
-  static constexpr std::size_t getMask()
-  {
-    constexpr std::size_t maxBits = sizeof(SizeType) * 8U;
-    constexpr std::size_t width = getWidth();
+  BitFieldModel& operator=(const BitFieldModel& other) = default;
 
-    if constexpr (width >= maxBits) {
-      return std::numeric_limits<SizeType>::max();
-    } else {
-      return (1U << width) - 1U;
-    }
-  }
-
-  template<typename T>
-  BitFieldModel& operator=(T value)
+  BitFieldModel& operator=(const FieldValue value)
   {
-    m_value = (m_value & ~(getMask() << Position)) | ((value & getMask()) << Position);
+    m_value = Mask::updateUnderlyingValue(m_value, value);
     return *this;
   }
 
-  operator SizeType() const
+  [[nodiscard]] constexpr operator FieldValue() const
   {
-    return (m_value >> Position) & getMask();
-  }
-
-  explicit operator bool() const
-  {
-    return m_value & (getMask() << Position);
-  }
-
-  BitFieldModel& operator++()
-  {
-    return *this = *this + 1U;
-  }
-
-  SizeType operator++(int)
-  {
-    const SizeType result = *this;
-    ++*this;
-    return result;
-  }
-
-  BitFieldModel& operator--()
-  {
-    return *this = *this - 1U;
-  }
-
-  SizeType operator--(int)
-  {
-    const SizeType result = *this;
-    --*this;
-    return result;
+    return Mask::fromUnderlyingValue(m_value);
   }
 
 private:
   SizeType m_value;
-
-  static_assert(Position >= 0 && Position <= (sizeof(SizeType) * 8 - 1), "The position of the field can't exceed the register size or be less than 0.");
-  static_assert(Width >= 1 && Width <= ((sizeof(SizeType) * 8) - Position),
-                "The width of the field starting from the position can't exceed the register size or be less than 1.");
 };
+}  // namespace dral
 
-/**
- * Bit Field Mode Template specialization for 1 bit field
- */
-template<typename SizeType, std::size_t Position>
-class BitFieldModel<SizeType, Position>
-{
-public:
-  static constexpr std::size_t getWidth()
-  {
-    return 1U;
-  }
-
-  static constexpr std::size_t getPosition()
-  {
-    return Position;
-  }
-
-  static constexpr std::size_t getMask()
-  {
-    return 1U;
-  }
-
-  BitFieldModel& operator=(bool value)
-  {
-    const SizeType bit = value ? 1U : 0U;
-    m_value = (m_value & ~(getMask() << Position)) | (bit << Position);
-    return *this;
-  }
-
-  explicit operator bool() const
-  {
-    return m_value & (getMask() << Position);
-  }
-
-private:
-  SizeType m_value;
-
-  static_assert(Position >= 0 && Position <= (sizeof(SizeType) * 8 - 1), "The position of the field can't exceed the register size or be less than 0.");
-};
-
-}
-
-#endif /* DRAL_BITFIELD_MODEL_H */
+#endif  // DRAL_BITFIELD_MODEL_H

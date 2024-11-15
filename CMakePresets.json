@@ -22,74 +22,68 @@
       }
     },
     {
-      "name": "d-ral-model",
-      "displayName": "D-RAL Model Configuration",
+      "name": "cortex-m3",
+      "displayName": "Cortex M3 Configuration",
       "inherits": "production",
-      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/model"
+      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/cortex-m3",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m3.cmake"
+      }
     },
     {
-      "name": "stm32f411",
-      "displayName": "STM32F411 Configuration",
+      "name": "cortex-m4",
+      "displayName": "Cortex M4 Configuration",
       "inherits": "production",
-      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/stm32f411",
+      "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/cortex-m4",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/stm32f411.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m4.cmake"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "stm32f411",
-      "configurePreset": "stm32f411",
+      "name": "cortex-m3",
+      "configurePreset": "cortex-m3",
       "targets": [
-        "stm32f411"
+        "app-model"
       ]
-    }
-  ],
-  "packagePresets": [
+    },
     {
-      "name": "d-ral-model-tgz",
-      "displayName": "D-RAL Model tar.gz Package",
-      "description": "Preset for generation D-RAL model tar.gz package",
-      "configurePreset": "d-ral-model",
-      "variables": {
-        "CPACK_PROJECT_CONFIG_FILE": "${sourceDir}/cmake/cpack/ArchiveConfig.cmake"
-      },
-      "packageVersion": "$penv{DRAL_MODEL_VERSION}",
-      "packageDirectory": "${sourceDir}/output/package",
-      "generators": [
-        "TGZ"
+      "name": "cortex-m4",
+      "configurePreset": "cortex-m4",
+      "targets": [
+        "app-model"
       ]
     }
   ],
   "workflowPresets": [
     {
-      "name": "release",
-      "displayName": "Release D-RAL Model tar.gz Package",
-      "description": "Workflow for releasing the D-RAL model as the tar.gz package",
+      "name": "cortex-m3",
+      "displayName": "Cortex M3 Build",
+      "description": "Workflow for building the Cortex M3 example",
       "steps": [
         {
           "type": "configure",
-          "name": "d-ral-model"
+          "name": "cortex-m3"
         },
         {
-          "type": "package",
-          "name": "d-ral-model-tgz"
+          "type": "build",
+          "name": "cortex-m3"
         }
       ]
     },
     {
-      "name": "stm32f411",
-      "displayName": "STM32F411 Build",
-      "description": "Workflow for building the STM32F411 example",
+      "name": "cortex-m4",
+      "displayName": "Cortex M4 Build",
+      "description": "Workflow for building the Cortex M4 example",
       "steps": [
         {
           "type": "configure",
-          "name": "stm32f411"
+          "name": "cortex-m4"
         },
         {
           "type": "build",
-          "name": "stm32f411"
+          "name": "cortex-m4"
         }
       ]
     }

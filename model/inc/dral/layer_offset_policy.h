@@ -33,22 +33,18 @@
 
 namespace dral {
 
-/**
- * Layer Offset Policy
- */
 template<typename IndexValueType, std::uintptr_t Offset>
 class LayerOffsetPolicy
 {
+  static_assert(Offset > 0, "Offset must be greater than zero");
+
 public:
   using IndexType = IndexValueType;
 
-public:
-  static constexpr std::uintptr_t getOffset(IndexType index)
+  [[nodiscard]] static constexpr auto getOffset(const IndexType index)
   {
     return Offset * static_cast<std::size_t>(index);
   }
-
-  static_assert(Offset > 0);
 };
 
 template<typename IndexValueType, typename Offsets>
@@ -75,4 +71,4 @@ public:
 
 }
 
-#endif /* DRAL_LAYER_OFFSET_POLICY_H */
+#endif  // DRAL_LAYER_OFFSET_POLICY_H

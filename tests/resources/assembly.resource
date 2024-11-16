@@ -1,17 +1,18 @@
 *** Settings ***
 Documentation       Keywords for .elf files disassembly and analysis
-Library             String
+Resource            project.resource
 Library             Assembly
+Library             OperatingSystem
 
 *** Keywords ***
-Disassemble ${symbol} from
-    [Arguments]    ${path}
-    Log    Disassembling ${symbol} from ${path}
-    ${disassembly} =    Assembly.Dissassemble    ${symbol}    ${path}
-    RETURN    ${disassembly}
+Disassemble ${symbol} from ${path}
+    [Documentation]     Disassemble a symbol from a .elf file
+    Log                 Disassembling ${symbol}() from ${path}
+    ${disassembly} =    Assembly.Dissassemble    ${symbol}()    ${path}
+    RETURN              ${disassembly}
 
-HexDump
-    [Arguments]    ${binary}
-    Log    Hexdumping ${binary}
-    ${hexdump} =    ${binary}
-    RETURN    ${hexdump}
+Get Expected ${symbol} Disassembly On ${platform} Platform
+    [Documentation]     Get the expected disassembly of a symbol on a specified platform
+    Log                 Getting expected ${symbol}() disassembly on ${platform} platform
+    ${disassembly} =    Get File    ${DataDir}${/}disassembly${/}${platform}${/}${symbol}.txt
+    RETURN              ${disassembly}

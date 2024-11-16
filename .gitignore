@@ -6,6 +6,7 @@ duckproject.toml
 
 .venv
 venv
+.venvdocker
 
 **/output.xml
 **/log.html

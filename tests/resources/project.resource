@@ -3,5 +3,6 @@ Documentation       Project settings
 
 *** Variables ***
 ${RootDir}          ${CURDIR}${/}..${/}..
-${BinDir}           ${RootDir}${/}output${/}install${/}bin
+${InstallDir}       ${RootDir}${/}output${/}install
 ${PlatformsDir}     ${RootDir}${/}renode${/}platforms
+${DataDir}          ${RootDir}${/}tests${/}data

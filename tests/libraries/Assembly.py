@@ -13,12 +13,7 @@ class Assembly:
         """Return disassembly of a symbol in an ELF file"""
         elffile = Path(path)
         process = subprocess.run(
-            [
-                "arm-none-eabi-objdump",
-                f"--disassemble={symbol}",
-                "-C",
-                str(elffile.expanduser().resolve()),
-            ],
+            ["arm-none-eabi-objdump", f"--disassemble={symbol}", "-C", str(elffile.expanduser().resolve())],
             capture_output=True,
             check=True,
         )

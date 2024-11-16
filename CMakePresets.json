@@ -17,26 +17,27 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_SKIP_INSTALL_ALL_DEPENDENCY": true,
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/output/install",
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
       "name": "cortex-m3",
-      "displayName": "Cortex M3 Configuration",
+      "displayName": "Cortex-M3 Configuration",
       "inherits": "production",
       "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/cortex-m3",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m3.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m3.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/output/install/cortex-m3"
       }
     },
     {
       "name": "cortex-m4",
-      "displayName": "Cortex M4 Configuration",
+      "displayName": "Cortex-M4 Configuration",
       "inherits": "production",
       "binaryDir": "${sourceDir}/output/build/RelWithDebInfo/cortex-m4",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m4.cmake"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/toolchain/cortex-m4.cmake",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/output/install/cortex-m4"
       }
     }
   ],

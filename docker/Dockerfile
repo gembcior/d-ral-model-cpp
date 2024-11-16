@@ -1,41 +1,42 @@
 FROM ubuntu:24.04
 
 # Set the locale
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG="C.UTF-8"
+ENV LC_ALL="C.UTF-8"
 
 ARG REQUIRED_PACKAGES=" \
+  curl \
+  unzip \
+  git \
+  cmake \
+  ninja-build \
   build-essential \
-  g++-multilib \
   gcc-multilib \
-  libclang-rt-18-dev \
-  libnewlib-dev \
-  gcc-arm-none-eabi \
-  libnewlib-arm-none-eabi \
-  libstdc++-arm-none-eabi-dev \
-  libstdc++-arm-none-eabi-newlib \
+  g++-multilib \
   clang \
   clang-tidy \
-  cmake \
-  curl \
-  git \
+  valgrind \
   gcovr \
-  ninja-build \
+  gcc-arm-none-eabi \
   python3 \
   python3-dev \
+  python3-diskcache \
   python3-venv \
-  python3-pip \
-  tar \
-  wget \
-  zip \
-  unzip \
+  cmake-curses-gui \
+  cppcheck \
 "
-ARG USER_PACKAGES="cmake-curses-gui cppcheck"
-ARG INSTALL_COMMAND="apt-get -qq install -y --no-install-recommends"
+ARG RENODE_DEPENDENCIES="dotnet-runtime-8.0"
+ARG INSTALL_COMMAND="apt-get -qq install -y"
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN dpkg --add-architecture i386 \
     && apt-get -qq update \
     && $INSTALL_COMMAND $REQUIRED_PACKAGES \
-    && $INSTALL_COMMAND $USER_PACKAGES \
+    && $INSTALL_COMMAND $RENODE_DEPENDENCIES \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Renode
+RUN curl -sSLo /opt/renode-latest.linux-dotnet.tar.gz \
+    https://github.com/renode/renode/releases/download/v1.15.3/renode-1.15.3.linux-dotnet.tar.gz
+ENV PYRENODE_PKG="/opt/renode-1.15.3.linux-dotnet.tar.gz"
+ENV PYRENODE_RUNTIME="coreclr"

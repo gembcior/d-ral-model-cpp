@@ -1,0 +1,6 @@
+Disassembly of section .text:
+
+10000130 <simple_field_read()>:
+10000130:	f04f 5300 	mov.w	r3, #536870912	@ 0x20000000
+10000134:	681b      	ldr	r3, [r3, #0]
+10000136:	4770      	bx	lr

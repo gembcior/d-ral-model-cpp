@@ -38,13 +38,14 @@
 
 #include <array>
 #include <cstdint>
+#include <tuple>
 
 namespace dral::draltestdevice {
 
 class BravoGroup final
 {
 private:
-  static constexpr uintptr_t BaseAddress{ 0x1001'0000 };
+  static constexpr uintptr_t BaseAddress{ 0x2001'0000 };
 
   template<std::uintptr_t Address>
   using AddressPolicy = GroupAddressPolicy<BaseAddress + Address>;

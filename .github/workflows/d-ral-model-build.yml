@@ -38,3 +38,13 @@ jobs:
         run: |
           . .venv/bin/activate
           robot --pythonpath ./tests/libraries:./tests/resources tests
+
+      - name: Archive tests results
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-framework-results
+          path: |
+            output.xml
+            log.html
+            report.html
+          retention-days: 7

@@ -13,6 +13,9 @@ jobs:
     env:
       GITHUB_TOKEN: ${{ github.TOKEN }}
     steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
       - name: Make model archive
         run: |
           cd ${{ github.workspace }}/model/inc/dral

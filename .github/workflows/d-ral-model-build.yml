@@ -15,11 +15,21 @@ jobs:
       image: gembcior/d-ral-docker
 
     steps:
-    - name: Check out the repository
-      uses: actions/checkout@v4
+      - name: Check out the repository
+        uses: actions/checkout@v4
 
-    - name: Configure CMake
-      run: |
-        echo ${{github.workspace}}
-        ls -al
-        pwd
+      - name: Run CMake Workflow
+        run: |
+          cmake --workflow --preset cortex-m3
+          cmake --workflow --preset cortex-m4
+
+      - name: Install build artifacts
+        run: |
+          cmake --install ./output/build/RelWithDebInfo/cortex-m3
+          cmake --install ./output/build/RelWithDebInfo/cortex-m4
+
+      - name: Prepare environment
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: robot --pythonpath ./tests/libraries:./tests/resources tests

@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.TOKEN }}
+    steps:
+      - name: Make model archive
+        run: |
+          cd ${{ github.workspace }}/model/inc/dral
+          tar -czvf ${{ github.workspace }}/d-ral-model.tar.gz *.h
+
+      - name: Make CMake version model archive
+        run: |
+          cd ${{ github.workspace }}/model
+          tar -czvf ${{ github.workspace }}/d-ral-model-cmake.tar.gz .
+
+      - name: Upload
+        run: gh release upload ${{ github.event.release.tag_name }} d-ral-model.tar.gz d-ral-model-cmake.tar.gz

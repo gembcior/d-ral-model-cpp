@@ -1,0 +1,50 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: gembcior/d-ral-docker
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Run CMake Workflow
+        run: |
+          cmake --workflow --preset cortex-m3
+          cmake --workflow --preset cortex-m4
+
+      - name: Install build artifacts
+        run: |
+          cmake --install ./output/build/RelWithDebInfo/cortex-m3
+          cmake --install ./output/build/RelWithDebInfo/cortex-m4
+
+      - name: Prepare environment
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install -r tests/requirements.txt
+
+      - name: Run tests
+        run: |
+          . .venv/bin/activate
+          robot --pythonpath ./tests/libraries:./tests/resources tests
+
+      - name: Archive tests results
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-framework-results
+          path: |
+            output.xml
+            log.html
+            report.html
+          retention-days: 7

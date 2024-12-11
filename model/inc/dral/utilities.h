@@ -29,10 +29,10 @@
 
 namespace dral {
 
-inline constexpr auto BitsPerByte{8U};
+inline constexpr auto BitsPerByte{ 8U };
 
 template<typename T>
-inline constexpr unsigned TypeSizeInBits{sizeof(T) * BitsPerByte};
+inline constexpr unsigned TypeSizeInBits{ sizeof(T) * BitsPerByte };
 
 }  // namespace dral
 

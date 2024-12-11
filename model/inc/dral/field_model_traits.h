@@ -29,43 +29,34 @@
 
 #include "access_type.h"
 #include "field_model.h"
-#include "register_model_traits.h"
 
-#include <cstdint>
-#include <utility>
+#include <cstddef>
 
 namespace dral {
 
-template<typename ModelType>
+template<typename FieldModelT>
 class FieldModelTraits;
 
-template<typename RegisterModel, std::size_t Position, std::size_t Width, typename FieldType, AccessType Access>
-class FieldModelTraits<FieldModel<RegisterModel, Position, Width, FieldType, Access>>
+template<typename RegisterModelT, std::size_t PositionV, std::size_t WidthV, typename FieldT, AccessType AccessV>
+class FieldModelTraits<FieldModel<RegisterModelT, PositionV, WidthV, FieldT, AccessV>>
 {
 public:
-  using RegisterModelType = RegisterModel;
+  using RegisterModelType = RegisterModelT;
+  using FieldType = FieldT;
 
-  template<typename... Index>
-  static constexpr std::uintptr_t address(Index&&... index)
+  [[nodiscard]] static constexpr auto getPosition()
   {
-    return RegisterModelTraits<RegisterModel>::address(std::forward<Index>(index)...);
+    return PositionV;
   }
 
-  static constexpr std::size_t position()
+  [[nodiscard]] static constexpr auto getWidth()
   {
-    return Position;
+    return WidthV;
   }
 
-  static constexpr std::size_t width()
+  [[nodiscard]] static constexpr auto getAccess()
   {
-    return Width;
-  }
-
-  using FieldValue = FieldType;
-
-  static constexpr AccessType access()
-  {
-    return Access;
+    return AccessV;
   }
 };
 

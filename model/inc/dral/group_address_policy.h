@@ -46,100 +46,102 @@ public:
   using type = typename T::IndexType;
 };
 
-template<template<typename> class TypeExtractor, typename Tuple, typename Index>
+template<template<typename> class TypeExtractorT, typename TupleT, typename IndexT>
 struct ExtractedTypesTuple;
 
-template<template<typename> class TypeExtractor, typename Tuple, std::size_t... Index>
-struct ExtractedTypesTuple<TypeExtractor, Tuple, std::index_sequence<Index...>>
+template<template<typename> class TypeExtractorT, typename TupleT, std::size_t... IndexV>
+struct ExtractedTypesTuple<TypeExtractorT, TupleT, std::index_sequence<IndexV...>>
 {
-  using type = std::tuple<typename TypeExtractor<std::tuple_element_t<Index, Tuple>>::type...>;
+  using type = std::tuple<typename TypeExtractorT<std::tuple_element_t<IndexV, TupleT>>::type...>;
 };
 
-template<typename Tuple, template<typename> class TypeExtractor = DefaultTypeExtractor>
-using IndicesTypesTuple = typename ExtractedTypesTuple<TypeExtractor,
-                                                       Tuple,
-                                                       std::make_index_sequence<std::tuple_size_v<Tuple>>>::type;
+template<typename TupleT, template<typename> class TypeExtractorT = DefaultTypeExtractor>
+using IndicesTypesTuple = typename ExtractedTypesTuple<TypeExtractorT, TupleT, std::make_index_sequence<std::tuple_size_v<TupleT>>>::type;
 
-template<std::uintptr_t Address, typename OffsetPolicy = void>
+template<std::uintptr_t AddressV, typename OffsetPolicyT = void>
 class GroupAddressPolicy;
 
-template<std::uintptr_t Address, typename... OffsetPolicy>
-class GroupAddressPolicy<Address, std::tuple<OffsetPolicy...>>
+template<std::uintptr_t AddressV, typename... OffsetPolicyT>
+class GroupAddressPolicy<AddressV, std::tuple<OffsetPolicyT...>>
 {
+  using Layers = std::tuple<OffsetPolicyT...>;
+
+  template<std::size_t V>
+  static constexpr auto PreviousIndex{ V - 1 };
+
 public:
-  static constexpr std::size_t LayersCount{ sizeof...(OffsetPolicy) };
-  using Layers = std::tuple<OffsetPolicy...>;
+  static constexpr auto LayersCount{ sizeof...(OffsetPolicyT) };
   using IndexType = IndicesTypesTuple<Layers, OffsetPolicyTypeExtractor>;
 
-  template<std::size_t I>
-  using LayerPolicy = std::tuple_element_t<I, Layers>;
+  template<std::size_t IdxV>
+  using LayerPolicy = std::tuple_element_t<IdxV, Layers>;
 
   [[nodiscard]] static constexpr auto getBaseAddress()
   {
-    return Address;
+    return AddressV;
   }
 
   [[nodiscard]] static constexpr auto getAddress(const IndexType& index)
   {
-    return Address + getOffset<LayersCount - 1>(index);
+    return AddressV + getOffset<PreviousIndex<LayersCount>>(index);
   }
 
-  template<typename... Index>
-  [[nodiscard]] static constexpr auto getAddress(Index&&... index)
+  template<typename... IndexT>
+  [[nodiscard]] static constexpr auto getAddress(IndexT&&... index)
   {
-    static_assert(sizeof...(Index) == LayersCount, "The number of indices must match the number of layers.");
-    const auto indexValue{IndexType(std::forward<Index>(index)...)};
+    static_assert(sizeof...(IndexT) == LayersCount, "The number of indices must match the number of layers.");
+    const auto indexValue{ IndexType(std::forward<IndexT>(index)...) };
     return getAddress(indexValue);
   }
 
 private:
-  template<std::size_t Index>
+  template<std::size_t IndexV>
   [[nodiscard]] static constexpr auto getOffset(const IndexType& index)
   {
-    const auto offset{LayerPolicy<Index>::getOffset(std::get<Index>(index))};
-    if constexpr (Index > 0) {
-      return offset + getOffset<Index - 1>(index);
+    const auto offset{ LayerPolicy<IndexV>::getOffset(std::get<IndexV>(index)) };
+    if constexpr (IndexV > 0) {
+      return offset + getOffset<PreviousIndex<IndexV>>(index);
     }
     return offset;
   }
 };
 
-template<std::uintptr_t Address, typename OffsetPolicy>
-class GroupAddressPolicy<Address, std::tuple<OffsetPolicy>>
+template<std::uintptr_t AddressV, typename OffsetPolicyT>
+class GroupAddressPolicy<AddressV, std::tuple<OffsetPolicyT>>
 {
 public:
-  static constexpr std::size_t LayersCount{1};
-  using IndexType = typename OffsetPolicy::IndexType;
-  using LayerPolicy = OffsetPolicy;
+  static constexpr std::size_t LayersCount{ 1 };
+  using LayerPolicy = OffsetPolicyT;
+  using IndexType = typename LayerPolicy::IndexType;
 
   [[nodiscard]] static constexpr auto getBaseAddress()
   {
-    return Address;
+    return AddressV;
   }
 
   [[nodiscard]] static constexpr auto getAddress(const IndexType& index)
   {
-    return Address + OffsetPolicy::getOffset(index);
+    return AddressV + LayerPolicy::getOffset(index);
   }
 };
 
-template<std::uintptr_t Address>
-class GroupAddressPolicy<Address, void>
+template<std::uintptr_t AddressV>
+class GroupAddressPolicy<AddressV, void>
 {
 public:
-  static constexpr std::size_t LayersCount{0};
+  static constexpr std::size_t LayersCount{ 0 };
 
   [[nodiscard]] static constexpr auto getBaseAddress()
   {
-    return Address;
+    return AddressV;
   }
 
   [[nodiscard]] static constexpr auto getAddress()
   {
-    return Address;
+    return AddressV;
   }
 };
 
-}
+}  // namespace dral
 
 #endif  // DRAL_GROUP_ADDRESS_POLICY_H

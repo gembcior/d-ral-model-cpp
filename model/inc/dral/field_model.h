@@ -31,58 +31,55 @@
 #include "mask_policy.h"
 #include "register_model_traits.h"
 
-#include <cstdint>
+#include <cstddef>
 #include <utility>
 
 namespace dral {
 
-template<typename RegisterModel,
-         std::size_t Position,
-         std::size_t Width,
-         typename FieldType = typename RegisterModelTraits<RegisterModel>::SizeType,
-         AccessType Access = RegisterModelTraits<RegisterModel>::access()>
+template<typename RegisterModelT,
+         std::size_t PositionV,
+         std::size_t WidthV,
+         typename FieldT = typename RegisterModelTraits<RegisterModelT>::UnderlyingType,
+         AccessType AccessV = RegisterModelTraits<RegisterModelT>::getAccess()>
 class FieldModel
 {
-  static_assert((Access & RegisterModelTraits<RegisterModel>::access()) == Access,
-                "Field model access must be supported by register model access.");
+  static_assert(IsAccessSupported<AccessV, RegisterModelTraits<RegisterModelT>::getAccess()>, "Field model access must be supported by register model access.");
 
-  static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
-  static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
-  using IsReadWrite = std::bool_constant<Access == AccessType::ReadWrite>;
-  using Mask = MaskPolicy<typename RegisterModelTraits<RegisterModel>::SizeType, Position, Width, FieldType>;
+  using IsReadWrite = std::bool_constant<IsAccessSupported<AccessType::ReadWrite, AccessV>>;
+  using Mask = MaskPolicy<typename RegisterModelTraits<RegisterModelT>::UnderlyingType, PositionV, WidthV, FieldT>;
 
 public:
-  using FieldValue = FieldType;
+  using FieldType = FieldT;
 
-  template<typename... Index>
-    requires IsReadable
-  [[nodiscard]] static FieldValue read(Index&&... index)
+  template<typename... IndexT>
+    requires IsReadable<AccessV>
+  [[nodiscard]] static auto read(IndexT&&... index)
   {
-    const auto rawValue{RegisterModel::read(std::forward<Index>(index)...).value};
+    const auto rawValue{ static_cast<typename RegisterModelTraits<RegisterModelT>::UnderlyingType>(RegisterModelT::read(std::forward<IndexT>(index)...)) };
     return Mask::fromUnderlyingValue(rawValue);
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const FieldValue value, Index&&... index)
+  template<typename... IndexT>
+    requires IsWritable<AccessV>
+  static void write(const FieldType value, IndexT&&... index)
   {
-    write(IsReadWrite{}, value, std::forward<Index>(index)...);
+    write(IsReadWrite{}, value, std::forward<IndexT>(index)...);
   }
 
 private:
-  template<typename... Index>
-  static void write(std::true_type, const FieldValue value, Index&&... index)
+  template<typename... IndexT>
+  static void write(std::true_type, const FieldType value, IndexT&&... index)
   {
-    const auto oldValue{RegisterModel::read(std::forward<Index>(index)...).value};
-    const auto newValue{Mask::updateUnderlyingValue(oldValue, value)};
-    RegisterModel::write(newValue, std::forward<Index>(index)...);
+    const auto oldValue{ static_cast<typename RegisterModelTraits<RegisterModelT>::UnderlyingType>(RegisterModelT::read(std::forward<IndexT>(index)...)) };
+    const auto newValue{ Mask::updateUnderlyingValue(oldValue, value) };
+    RegisterModelT::write(newValue, std::forward<IndexT>(index)...);
   }
 
-  template<typename... Index>
-  static void write(std::false_type, const FieldValue value, Index&&... index)
+  template<typename... IndexT>
+  static void write(std::false_type, const FieldType value, IndexT&&... index)
   {
-    const auto newValue{Mask::toUnderlyingValue(value)};
-    RegisterModel::write(newValue, std::forward<Index>(index)...);
+    const auto newValue{ Mask::toUnderlyingValue(value) };
+    RegisterModelT::write(newValue, std::forward<IndexT>(index)...);
   }
 };
 

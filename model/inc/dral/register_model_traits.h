@@ -29,31 +29,25 @@
 
 #include "access_type.h"
 #include "register_model.h"
-#include <cstdint>
-#include <utility>
 
 namespace dral {
 
-template<typename RegisterModel>
+template<typename RegisterModelT>
 class RegisterModelTraits;
 
-template<typename RegType, typename AddressPolicy, AccessType Access>
-class RegisterModelTraits<RegisterModel<RegType, AddressPolicy, Access>>
+template<typename ValueT, typename AddressPolicyT, AccessType AccessV>
+class RegisterModelTraits<RegisterModel<ValueT, AddressPolicyT, AccessV>>
 {
+  using Register = RegisterModel<ValueT, AddressPolicyT, AccessV>;
+
 public:
-  using RegValue = RegType;
-  using SizeType = decltype(RegType::value);
-  using AddressPolicyType = AddressPolicy;
+  using ValueType = typename Register::ValueType;
+  using UnderlyingType = typename Register::UnderlyingType;
+  using AddressPolicyType = AddressPolicyT;
 
-  template<typename... Index>
-  static constexpr std::uintptr_t address(Index&&... index)
+  [[nodiscard]] static constexpr auto getAccess()
   {
-    return AddressPolicy::getAddress(std::forward<Index>(index)...);
-  }
-
-  static constexpr AccessType access()
-  {
-    return Access;
+    return AccessV;
   }
 };
 

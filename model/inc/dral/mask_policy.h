@@ -29,50 +29,53 @@
 
 #include "utilities.h"
 
-#include <cstdint>
+#include <cstddef>
 #include <limits>
 #include <type_traits>
 
 namespace dral {
 
-template<typename UnderlyingType, std::size_t Position, std::size_t Width, typename TargetType = UnderlyingType>
+template<typename UnderlyingT, std::size_t PositionV, std::size_t WidthV, typename TargetT = UnderlyingT>
 class MaskPolicy
 {
-  static_assert(!std::is_same_v<UnderlyingType, bool> && std::is_integral_v<UnderlyingType>,
-                "UnderlyingType must be an integral type, excluding bool.");
+  static_assert(!std::is_same_v<UnderlyingT, bool> && std::is_integral_v<UnderlyingT>, "Underlying type must be an integral type, excluding bool.");
 
-  static constexpr auto UnderlyingTypeSizeInBits{TypeSizeInBits<UnderlyingType>};
-  static_assert((Position >= 0) && (Position <= (UnderlyingTypeSizeInBits - 1)),
-                "The position of the mask can't exceed the UnderlyingType size or be less than 0.");
-  static_assert((Width >= 1) && (Width <= (UnderlyingTypeSizeInBits - Position)),
-                "The width of the mask starting from the position can't exceed the UnderlyingType size or be less than 1.");
+  static constexpr auto UnderlyingTypeSizeInBits{ TypeSizeInBits<UnderlyingT> };
+  static_assert((PositionV >= 0) && (PositionV < UnderlyingTypeSizeInBits),
+                "The position of the mask can't exceed the underlying type size or be less than 0.");
+  static_assert((WidthV > 0) && (WidthV <= (UnderlyingTypeSizeInBits - PositionV)),
+                "The width of the mask starting from the position can't exceed the underlying type size or be less than 1.");
 
-  static constexpr bool IsBoolean{std::is_same_v<TargetType, bool>};
-  static_assert(sizeof(TargetType) <= sizeof(UnderlyingType), "TargetType size must not exceed UnderlyingType size.");
-  static_assert((IsBoolean && (Width == 1)) || (!IsBoolean && (Width <= TypeSizeInBits<TargetType>)),
-                "TargetType must be at least Width wide and for bool Width must equal 1.");
+  static_assert(sizeof(TargetT) <= sizeof(UnderlyingT), "Target type size must not exceed underlying type size.");
 
-  static constexpr UnderlyingType Mask{Width == UnderlyingTypeSizeInBits ? std::numeric_limits<UnderlyingType>::max() : ((1U << Width) - 1U)};
+  static constexpr bool IsBoolean{ std::is_same_v<TargetT, bool> };
+  static_assert((IsBoolean && (WidthV == 1)) || (!IsBoolean && (WidthV <= TypeSizeInBits<TargetT>)),
+                "Target type must be at least Width wide and for bool Width must equal 1.");
+
+  static constexpr UnderlyingT Mask{ (WidthV == UnderlyingTypeSizeInBits) ? std::numeric_limits<UnderlyingT>::max()
+                                                                          : ((UnderlyingT{ 1U } << WidthV) - UnderlyingT{ 1U }) };
+
+  static constexpr UnderlyingT ClearAbsolutMask{ ~(Mask << PositionV) };
 
 public:
-  using UnderlyingValueType = UnderlyingType;
-  using TargetValueType = TargetType;
+  using UnderlyingType = UnderlyingT;
+  using TargetType = TargetT;
 
-  static constexpr TargetValueType fromUnderlyingValue(const UnderlyingValueType value)
+  [[nodiscard]] static constexpr auto fromUnderlyingValue(const UnderlyingType value)
   {
-    return static_cast<TargetValueType>((value >> Position) & Mask);
+    return static_cast<TargetType>((value >> PositionV) & Mask);
   }
 
-  static constexpr UnderlyingValueType toUnderlyingValue(const TargetValueType value)
+  [[nodiscard]] static constexpr auto toUnderlyingValue(const TargetType value)
   {
-    return (static_cast<UnderlyingValueType>(value) & Mask) << Position;
+    return (static_cast<UnderlyingType>(value) & Mask) << PositionV;
   }
 
-  static constexpr UnderlyingValueType updateUnderlyingValue(const UnderlyingValueType underlyingValue,
-                                                             const TargetValueType targetValue)
+  [[nodiscard]] static constexpr auto updateUnderlyingValue(const UnderlyingType underlyingValue, const TargetType targetValue)
   {
-    return (underlyingValue & ~(Mask << Position)) |
-           ((static_cast<UnderlyingValueType>(targetValue) & Mask) << Position);
+    const auto updateValue{ toUnderlyingValue(targetValue) };
+    const auto newValue{ (underlyingValue & ClearAbsolutMask) | updateValue };
+    return newValue;
   }
 };
 }  // namespace dral

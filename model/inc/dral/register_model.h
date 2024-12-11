@@ -29,47 +29,54 @@
 
 #include "access_type.h"
 
-#include <cstdint>
 #include <utility>
 
 namespace dral {
 
-template<typename RegType, typename AddressPolicy, AccessType Access = AccessType::ReadWrite>
+template<typename ValueT, typename AddressPolicyT, AccessType AccessV = AccessType::ReadWrite>
 class RegisterModel
 {
-  static constexpr bool IsReadable{(Access & AccessType::ReadOnly) == AccessType::ReadOnly};
-  static constexpr bool IsWritable{(Access & AccessType::WriteOnly) == AccessType::WriteOnly};
+  static constexpr auto Access{ AccessV };
+
+  using AddressPolicyType = AddressPolicyT;
 
 public:
-  using SizeType = decltype(RegType::value);
-  using RegValue = RegType;
+  using UnderlyingType = typename ValueT::UnderlyingType;
+  using ValueType = ValueT;
 
-  template<typename... Index>
-    requires IsReadable
-  [[nodiscard]] static auto read(Index&&... index)
+// GCC treats pointers in below code as 0 sized arrays and each access to them triggers -Warray-bounds warning
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
+  template<typename... IndexT>
+    requires IsReadable<Access>
+  [[nodiscard]] static auto read(IndexT&&... index)
   {
-    volatile const auto* const regptr{
-        reinterpret_cast<volatile const SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    return RegValue{*regptr};
+    volatile const auto* const regPtr{ reinterpret_cast<volatile const UnderlyingType*>(AddressPolicyType::getAddress(std::forward<IndexT>(index)...)) };
+    return ValueType{ *regPtr };
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const SizeType value, Index&&... index)
+  template<typename... IndexT>
+    requires IsWritable<Access>
+  static void write(const UnderlyingType rawValue, IndexT&&... index)
   {
-    volatile auto* const regptr{
-        reinterpret_cast<volatile SizeType*>(AddressPolicy::getAddress(std::forward<Index>(index)...))};
-    *regptr = value;
+    volatile auto* const regPtr{ reinterpret_cast<volatile UnderlyingType*>(AddressPolicyType::getAddress(std::forward<IndexT>(index)...)) };
+    *regPtr = rawValue;
   }
 
-  template<typename... Index>
-    requires IsWritable
-  static void write(const RegValue& reg, Index&&... index)
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
+  template<typename... IndexT>
+    requires IsWritable<Access>
+  static void write(const ValueType& regValue, IndexT&&... index)
   {
-    write(reg.value, std::forward<Index>(index)...);
+    write(static_cast<UnderlyingType>(regValue), std::forward<IndexT>(index)...);
   }
 };
-}
+}  // namespace dral
 
 #endif  // DRAL_REGISTER_MODEL_H

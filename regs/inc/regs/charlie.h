@@ -1,3 +1,4 @@
+
 /*
  * D-RAL - Device Register Access Layer
  * https://github.com/gembcior/d-ral
@@ -30,11 +31,13 @@
 #ifndef DRAL_DRALTESTDEVICE_CHARLIE_H
 #define DRAL_DRALTESTDEVICE_CHARLIE_H
 
-#include "dral/bitfield_model.h"
+#include "dral/access_type.h"
 #include "dral/field_model.h"
 #include "dral/group_address_policy.h"
 #include "dral/layer_offset_policy.h"
+#include "dral/mask_policy.h"
 #include "dral/register_model.h"
+#include "dral/register_value.h"
 
 #include <array>
 #include <cstdint>
@@ -51,27 +54,30 @@ private:
   using AddressPolicy = GroupAddressPolicy<BaseAddress + Address>;
 
 public:
+private:
+  enum class AlbatrossFields
+  {
+    kvm,
+    ecdsa
+  };
+
+  using AlbatrossAllMasks = std::tuple<MaskPolicy<uint32_t, 1, 13>, MaskPolicy<uint32_t, 31, 1>>;
+
+public:
   /**
    * REGISTER ALBATROSS
    */
-  union AlbatrossType
+  class AlbatrossType : public RegisterValue<uint32_t, AlbatrossFields, AlbatrossAllMasks>
   {
-    uint32_t value;
-    BitFieldModel<uint32_t, 1, 13> kvmField;
-    BitFieldModel<uint32_t, 31, 1> ecdsaField;
-
-    constexpr operator uint32_t() const
-    {
-      return value;
-    }
+  public:
+    using RegisterValue<uint32_t, AlbatrossFields, AlbatrossAllMasks>::RegisterValue;
+    using enum AlbatrossFields;
   };
 
   class AlbatrossRegister final : public RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>
   {
-  private:
-    using reg = RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
-
   public:
+    using reg = RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
     using kvmField = FieldModel<reg, 1, 13>;
     using ecdsaField = FieldModel<reg, 31, 1>;
 
@@ -89,29 +95,31 @@ public:
     template<std::uintptr_t Address>
     using AddressPolicy = GroupAddressPolicy<BaseAddress + Address>;
 
+  private:
+    enum class AppleFields
+    {
+      dp,
+      hdmi,
+      usb
+    };
+
+    using AppleAllMasks = std::tuple<MaskPolicy<uint32_t, 0, 1>, MaskPolicy<uint32_t, 2, 4>, MaskPolicy<uint32_t, 15, 16>>;
+
   public:
     /**
      * REGISTER APPLE
      */
-    union AppleType
+    class AppleType : public RegisterValue<uint32_t, AppleFields, AppleAllMasks>
     {
-      uint32_t value;
-      BitFieldModel<uint32_t, 0, 1> dpField;
-      BitFieldModel<uint32_t, 2, 4> hdmiField;
-      BitFieldModel<uint32_t, 15, 16> usbField;
-
-      constexpr operator uint32_t() const
-      {
-        return value;
-      }
+    public:
+      using RegisterValue<uint32_t, AppleFields, AppleAllMasks>::RegisterValue;
+      using enum AppleFields;
     };
 
     class AppleRegister final : public RegisterModel<AppleType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>
     {
-    private:
-      using reg = RegisterModel<AppleType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
-
     public:
+      using reg = RegisterModel<AppleType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
       using dpField = FieldModel<reg, 0, 1>;
       using hdmiField = FieldModel<reg, 2, 4>;
       using usbField = FieldModel<reg, 15, 16>;
@@ -119,27 +127,30 @@ public:
       using AllFields = std::tuple<dpField, hdmiField, usbField>;
     };
 
+  private:
+    enum class BananaFields
+    {
+      hdcp,
+      aes
+    };
+
+    using BananaAllMasks = std::tuple<MaskPolicy<uint32_t, 0, 10>, MaskPolicy<uint32_t, 20, 5>>;
+
+  public:
     /**
      * REGISTER BANANA
      */
-    union BananaType
+    class BananaType : public RegisterValue<uint32_t, BananaFields, BananaAllMasks>
     {
-      uint32_t value;
-      BitFieldModel<uint32_t, 0, 10> hdcpField;
-      BitFieldModel<uint32_t, 20, 5> aesField;
-
-      constexpr operator uint32_t() const
-      {
-        return value;
-      }
+    public:
+      using RegisterValue<uint32_t, BananaFields, BananaAllMasks>::RegisterValue;
+      using enum BananaFields;
     };
 
     class BananaRegister final : public RegisterModel<BananaType, AddressPolicy<0x0000'0020>, AccessType::ReadWrite>
     {
-    private:
-      using reg = RegisterModel<BananaType, AddressPolicy<0x0000'0020>, AccessType::ReadWrite>;
-
     public:
+      using reg = RegisterModel<BananaType, AddressPolicy<0x0000'0020>, AccessType::ReadWrite>;
       using hdcpField = FieldModel<reg, 0, 10>;
       using aesField = FieldModel<reg, 20, 5>;
 

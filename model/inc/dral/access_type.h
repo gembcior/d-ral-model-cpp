@@ -27,14 +27,30 @@
 #ifndef DRAL_ACCESS_TYPE_H
 #define DRAL_ACCESS_TYPE_H
 
+#include <type_traits>
+
 namespace dral {
 
-enum AccessType
+enum class AccessType
 {
   ReadOnly = 0x1,
   WriteOnly = 0x2,
   ReadWrite = ReadOnly | WriteOnly
 };
+
+template<AccessType AccessRequired, AccessType AccessAvailable>
+inline constexpr bool IsAccessSupported{ (static_cast<std::underlying_type_t<AccessType>>(AccessRequired) &
+                                          static_cast<std::underlying_type_t<AccessType>>(AccessAvailable)) ==
+                                         static_cast<std::underlying_type_t<AccessType>>(AccessRequired) };
+
+template<AccessType Access>
+concept IsReadable = IsAccessSupported<AccessType::ReadOnly, Access>;
+
+template<AccessType Access>
+concept IsWritable = IsAccessSupported<AccessType::WriteOnly, Access>;
+
+template<AccessType Access>
+concept IsReadWrite = (Access == AccessType::ReadWrite);
 
 }  // namespace dral
 

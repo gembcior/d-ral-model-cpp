@@ -1,3 +1,4 @@
+
 /*
  * D-RAL - Device Register Access Layer
  * https://github.com/gembcior/d-ral
@@ -30,11 +31,13 @@
 #ifndef DRAL_DRALTESTDEVICE_ECHO_X_H
 #define DRAL_DRALTESTDEVICE_ECHO_X_H
 
-#include "dral/bitfield_model.h"
+#include "dral/access_type.h"
 #include "dral/field_model.h"
 #include "dral/group_address_policy.h"
 #include "dral/layer_offset_policy.h"
+#include "dral/mask_policy.h"
 #include "dral/register_model.h"
+#include "dral/register_value.h"
 
 #include <array>
 #include <cstdint>
@@ -67,27 +70,30 @@ private:
   using AddressPolicy = GroupAddressPolicy<BaseAddress + Address, std::tuple<OffsetPolicy>>;
 
 public:
+private:
+  enum class AlbatrossFields
+  {
+    kvm,
+    ecdsa
+  };
+
+  using AlbatrossAllMasks = std::tuple<MaskPolicy<uint32_t, 1, 13>, MaskPolicy<uint32_t, 31, 1>>;
+
+public:
   /**
    * REGISTER ALBATROSS
    */
-  union AlbatrossType
+  class AlbatrossType : public RegisterValue<uint32_t, AlbatrossFields, AlbatrossAllMasks>
   {
-    uint32_t value;
-    BitFieldModel<uint32_t, 1, 13> kvmField;
-    BitFieldModel<uint32_t, 31, 1> ecdsaField;
-
-    constexpr operator uint32_t() const
-    {
-      return value;
-    }
+  public:
+    using RegisterValue<uint32_t, AlbatrossFields, AlbatrossAllMasks>::RegisterValue;
+    using enum AlbatrossFields;
   };
 
   class AlbatrossRegister final : public RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>
   {
-  private:
-    using reg = RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
-
   public:
+    using reg = RegisterModel<AlbatrossType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
     using kvmField = FieldModel<reg, 1, 13>;
     using ecdsaField = FieldModel<reg, 31, 1>;
 
@@ -122,28 +128,30 @@ public:
     template<std::uintptr_t Address>
     using AddressPolicy = GroupAddressPolicy<BaseAddress + Address, std::tuple<EchoXGroup::OffsetPolicy, OffsetPolicy>>;
 
+  private:
+    enum class BearXFields
+    {
+      tcp,
+      udp
+    };
+
+    using BearXAllMasks = std::tuple<MaskPolicy<uint32_t, 0, 9>, MaskPolicy<uint32_t, 10, 9>>;
+
   public:
     /**
      * REGISTER BEAR_X
      */
-    union BearXType
+    class BearXType : public RegisterValue<uint32_t, BearXFields, BearXAllMasks>
     {
-      uint32_t value;
-      BitFieldModel<uint32_t, 0, 9> tcpField;
-      BitFieldModel<uint32_t, 10, 9> udpField;
-
-      constexpr operator uint32_t() const
-      {
-        return value;
-      }
+    public:
+      using RegisterValue<uint32_t, BearXFields, BearXAllMasks>::RegisterValue;
+      using enum BearXFields;
     };
 
     class BearXRegister final : public RegisterModel<BearXType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>
     {
-    private:
-      using reg = RegisterModel<BearXType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
-
     public:
+      using reg = RegisterModel<BearXType, AddressPolicy<0x0000'0000>, AccessType::ReadWrite>;
       using tcpField = FieldModel<reg, 0, 9>;
       using udpField = FieldModel<reg, 10, 9>;
 

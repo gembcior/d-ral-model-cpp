@@ -33,42 +33,38 @@
 
 namespace dral {
 
-template<typename IndexValueType, std::uintptr_t Offset>
+template<typename IndexT, std::uintptr_t OffsetV>
 class LayerOffsetPolicy
 {
-  static_assert(Offset > 0, "Offset must be greater than zero");
+  static_assert(OffsetV > 0, "Offset must be greater than zero");
 
 public:
-  using IndexType = IndexValueType;
+  using IndexType = IndexT;
 
   [[nodiscard]] static constexpr auto getOffset(const IndexType index)
   {
-    return Offset * static_cast<std::size_t>(index);
+    return OffsetV * static_cast<std::size_t>(index);
   }
 };
 
-template<typename IndexValueType, typename Offsets>
+template<typename IndexT, typename OffsetsT>
 class NonUniformLayerOffsetPolicy;
 
-template<typename IndexValueType, std::uintptr_t... Offsets>
-class NonUniformLayerOffsetPolicy<IndexValueType, std::integer_sequence<std::uintptr_t, Offsets...>>
+template<typename IndexT, std::uintptr_t... OffsetsV>
+class NonUniformLayerOffsetPolicy<IndexT, std::integer_sequence<std::uintptr_t, OffsetsV...>>
 {
+  static_assert(sizeof...(OffsetsV) > 2, "More than two offsets must be provided");
+
 public:
-  static constexpr std::size_t GroupsCount{ sizeof...(Offsets) };
+  using IndexType = IndexT;
 
-  using IndexType = IndexValueType;
-
-  using OffsetsSequence = std::integer_sequence<std::uintptr_t, Offsets...>;
-
-  static constexpr std::uintptr_t getOffset(IndexType index)
+  [[nodiscard]] static constexpr auto getOffset(const IndexType index)
   {
-    constexpr std::array OffsetsValues{ Offsets... };
+    constexpr std::array OffsetsValues{ OffsetsV... };
     return OffsetsValues[static_cast<std::size_t>(index)];
   }
-
-  static_assert(sizeof...(Offsets) > 2);
 };
 
-}
+}  // namespace dral
 
 #endif  // DRAL_LAYER_OFFSET_POLICY_H

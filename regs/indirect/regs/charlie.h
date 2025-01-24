@@ -30,12 +30,9 @@
 #ifndef DRAL_DRALTESTDEVICE_CHARLIE_H
 #define DRAL_DRALTESTDEVICE_CHARLIE_H
 
-#include "dral/access_type.h"
-#include "dral/field_model.h"
 #include "dral/group_address_policy.h"
 #include "dral/layer_offset_policy.h"
 #include "dral/mask_policy.h"
-#include "dral/register_model.h"
 #include "dral/register_value.h"
 
 #include <array>

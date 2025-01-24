@@ -1,0 +1,9 @@
+Disassembly of section .text:
+
+10000120 <simple_register_write()>:
+10000120:	f04f 5300 	mov.w	r3, #536870912	@ 0x20000000
+10000124:	4a01      	ldr	r2, [pc, #4]	@ (1000012c <simple_register_write()+0xc>)
+10000126:	601a      	str	r2, [r3, #0]
+10000128:	4770      	bx	lr
+1000012a:	bf00      	nop
+1000012c:	12345678 	.word	0x12345678

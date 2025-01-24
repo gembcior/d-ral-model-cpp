@@ -42,6 +42,12 @@ __attribute__((noinline)) void register_write_using_register_value_type()
 
 int main()
 {
+  simple_register_read();
+  simple_register_write();
+
+  register_read_using_register_value_type();
+  register_write_using_register_value_type();
+
   while (true) {
     asm volatile("nop");
   }

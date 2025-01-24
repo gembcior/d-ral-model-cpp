@@ -1,0 +1,9 @@
+Disassembly of section .text:
+
+1000018c <group_register_write_using_register_value_type()>:
+1000018c:	2200      	movs	r2, #0
+1000018e:	6c13      	ldr	r3, [r2, #64]	@ 0x40
+10000190:	f36f 0308 	bfc	r3, #0, #9
+10000194:	f043 0334 	orr.w	r3, r3, #52	@ 0x34
+10000198:	6413      	str	r3, [r2, #64]	@ 0x40
+1000019a:	4770      	bx	lr

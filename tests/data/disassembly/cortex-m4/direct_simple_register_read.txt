@@ -1,0 +1,6 @@
+Disassembly of section .text:
+
+10000118 <simple_register_read()>:
+10000118:	f04f 5300 	mov.w	r3, #536870912	@ 0x20000000
+1000011c:	681b      	ldr	r3, [r3, #0]
+1000011e:	4770      	bx	lr

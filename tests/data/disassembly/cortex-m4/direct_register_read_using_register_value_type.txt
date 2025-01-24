@@ -1,0 +1,6 @@
+Disassembly of section .text:
+
+10000150 <register_read_using_register_value_type()>:
+10000150:	f04f 5300 	mov.w	r3, #536870912	@ 0x20000000
+10000154:	681b      	ldr	r3, [r3, #0]
+10000156:	4770      	bx	lr

@@ -44,6 +44,12 @@ public:
   using UnderlyingType = typename ValueT::UnderlyingType;
   using ValueType = ValueT;
 
+  template<typename... IndexT>
+  [[nodiscard]] static constexpr auto getAddress(IndexT&&... index)
+  {
+    return AddressPolicyType::getAddress(std::forward<IndexT>(index)...);
+  }
+
 // GCC treats pointers in below code as 0 sized arrays and each access to them triggers -Warray-bounds warning
 #ifdef __GNUC__
 #pragma GCC diagnostic push
@@ -74,7 +80,7 @@ public:
     requires IsWritable<Access>
   static void write(const ValueType& regValue, IndexT&&... index)
   {
-    write(static_cast<UnderlyingType>(regValue), std::forward<IndexT>(index)...);
+    write(regValue.value(), std::forward<IndexT>(index)...);
   }
 };
 }  // namespace dral

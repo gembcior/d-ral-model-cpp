@@ -55,7 +55,7 @@ public:
     requires IsReadable<AccessV>
   [[nodiscard]] static auto read(IndexT&&... index)
   {
-    const auto rawValue{ static_cast<typename RegisterModelTraits<RegisterModelT>::UnderlyingType>(RegisterModelT::read(std::forward<IndexT>(index)...)) };
+    const auto rawValue{ RegisterModelT::read(std::forward<IndexT>(index)...).value() };
     return Mask::fromUnderlyingValue(rawValue);
   }
 
@@ -70,7 +70,7 @@ private:
   template<typename... IndexT>
   static void write(std::true_type, const FieldType value, IndexT&&... index)
   {
-    const auto oldValue{ static_cast<typename RegisterModelTraits<RegisterModelT>::UnderlyingType>(RegisterModelT::read(std::forward<IndexT>(index)...)) };
+    const auto oldValue{ RegisterModelT::read(std::forward<IndexT>(index)...).value() };
     const auto newValue{ Mask::updateUnderlyingValue(oldValue, value) };
     RegisterModelT::write(newValue, std::forward<IndexT>(index)...);
   }

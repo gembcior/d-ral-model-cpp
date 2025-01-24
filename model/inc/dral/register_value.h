@@ -61,7 +61,7 @@ public:
     m_value = MaskPolicyT::updateUnderlyingValue(m_value, fieldValue);
   }
 
-  [[nodiscard]] explicit constexpr operator UnderlyingType() const
+  [[nodiscard]] constexpr UnderlyingType value() const
   {
     return m_value;
   }
@@ -72,8 +72,6 @@ private:
 
 }  // namespace impl
 
-// Note: This is forward declaration of RegisterValue type so that
-// later on one can capture (specialize with tuple) various masks used for particular fields
 template<typename UnderlyingT, typename FieldIndexT, typename TupleT>
 class RegisterValue;
 
@@ -100,9 +98,9 @@ public:
   {
   }
 
-  [[nodiscard]] explicit constexpr operator UnderlyingType() const
+  [[nodiscard]] constexpr UnderlyingType value() const
   {
-    return static_cast<UnderlyingType>(m_regValue);
+    return m_regValue.value();
   }
 
   using FieldIndex = FieldIndexT;
@@ -117,6 +115,20 @@ public:
   constexpr void set(const FieldType<FiV> value)
   {
     m_regValue.template set<FieldMask<FiV>>(value);
+  }
+};
+
+template<typename UnderlyingT, typename AddressPolicyT, typename FieldIndexT, typename... MaskT>
+class IndirectRegisterValue : public RegisterValue<UnderlyingT, FieldIndexT, MaskT...>
+{
+  using RegisterValue<UnderlyingT, FieldIndexT, MaskT...>::RegisterValue;
+  using AddressPolicyType = AddressPolicyT;
+
+public:
+  template<typename... IndexT>
+  [[nodiscard]] static constexpr auto getAddress(IndexT&&... index)
+  {
+    return AddressPolicyType::getAddress(std::forward<IndexT>(index)...);
   }
 };
 }  // namespace dral

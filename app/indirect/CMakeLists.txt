@@ -1,8 +1,8 @@
 include(DralUtils)
 
-dral_add_executable(app-model)
+dral_add_executable(app-indirect)
 
-target_sources(app-model
+target_sources(app-indirect
   PRIVATE
     src/main.cpp
 )
@@ -15,8 +15,8 @@ else()
   message(FATAL_ERROR "Unknown platform: ${DRAL_TEST_PLATFORM}")
 endif()
 
-target_link_libraries(app-model
+target_link_libraries(app-indirect
   PRIVATE
     ${CRT_LIB}
-    dral::regs
+    dral::regs::indirect
 )

@@ -46,14 +46,16 @@
       "name": "cortex-m3",
       "configurePreset": "cortex-m3",
       "targets": [
-        "app-model"
+        "app-direct",
+        "app-indirect"
       ]
     },
     {
       "name": "cortex-m4",
       "configurePreset": "cortex-m4",
       "targets": [
-        "app-model"
+        "app-direct",
+        "app-indirect"
       ]
     }
   ],

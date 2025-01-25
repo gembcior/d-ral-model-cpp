@@ -76,7 +76,7 @@ public:
   class BearXGroup final
   {
   private:
-    static constexpr uintptr_t BaseAddress{ 0x0000'0020 };
+    static constexpr uintptr_t BaseAddress{ BravoGroup::BaseAddress + 0x0000'0020 };
 
   public:
     enum class IndexType

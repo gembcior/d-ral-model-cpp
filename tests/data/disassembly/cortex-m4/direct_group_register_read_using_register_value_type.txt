@@ -1,6 +1,8 @@
 Disassembly of section .text:
 
-10000184 <group_register_read_using_register_value_type()>:
-10000184:	2300      	movs	r3, #0
-10000186:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
-10000188:	4770      	bx	lr
+1000018c <group_register_read_using_register_value_type()>:
+1000018c:	4b01      	ldr	r3, [pc, #4]	@ (10000194 <group_register_read_using_register_value_type()+0x8>)
+1000018e:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
+10000190:	4770      	bx	lr
+10000192:	bf00      	nop
+10000194:	20010000 	.word	0x20010000

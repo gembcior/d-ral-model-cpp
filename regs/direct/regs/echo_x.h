@@ -1,11 +1,10 @@
-
 /*
  * D-RAL - Device Register Access Layer
  * https://github.com/gembcior/d-ral
  *
  * MIT License
  *
- * Copyright (c) 2024 Gembcior
+ * Copyright (c) 2025 Gembcior
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +105,7 @@ public:
   class BearXGroup final
   {
   private:
-    static constexpr uintptr_t BaseAddress{ 0x0000'0020 };
+    static constexpr uintptr_t BaseAddress{ EchoXGroup::BaseAddress + 0x0000'0020 };
 
   public:
     enum class IndexType

@@ -1,6 +1,8 @@
 Disassembly of section .text:
 
 10000170 <simple_group_register_read()>:
-10000170:	2300      	movs	r3, #0
+10000170:	4b01      	ldr	r3, [pc, #4]	@ (10000178 <simple_group_register_read()+0x8>)
 10000172:	6c1b      	ldr	r3, [r3, #64]	@ 0x40
 10000174:	4770      	bx	lr
+10000176:	bf00      	nop
+10000178:	20010000 	.word	0x20010000

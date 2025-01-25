@@ -76,7 +76,7 @@ public:
   class FruitsGroup final
   {
   private:
-    static constexpr uintptr_t BaseAddress{ 0x0000'0020 };
+    static constexpr uintptr_t BaseAddress{ CharlieGroup::BaseAddress + 0x0000'0020 };
 
     template<std::uintptr_t Address>
     using AddressPolicy = GroupAddressPolicy<BaseAddress + Address>;

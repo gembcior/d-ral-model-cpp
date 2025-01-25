@@ -1,8 +1,9 @@
 Disassembly of section .text:
 
-10000178 <simple_group_register_write()>:
-10000178:	2300      	movs	r3, #0
-1000017a:	4a01      	ldr	r2, [pc, #4]	@ (10000180 <simple_group_register_write()+0x8>)
-1000017c:	641a      	str	r2, [r3, #64]	@ 0x40
-1000017e:	4770      	bx	lr
-10000180:	12345678 	.word	0x12345678
+1000017c <simple_group_register_write()>:
+1000017c:	4b01      	ldr	r3, [pc, #4]	@ (10000184 <simple_group_register_write()+0x8>)
+1000017e:	4a02      	ldr	r2, [pc, #8]	@ (10000188 <simple_group_register_write()+0xc>)
+10000180:	641a      	str	r2, [r3, #64]	@ 0x40
+10000182:	4770      	bx	lr
+10000184:	20010000 	.word	0x20010000
+10000188:	12345678 	.word	0x12345678

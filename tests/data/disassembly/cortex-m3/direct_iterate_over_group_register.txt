@@ -1,0 +1,12 @@
+Disassembly of section .text:
+
+100001c8 <iterate_over_group_register()>:
+100001c8:	4b02      	ldr	r3, [pc, #8]	@ (100001d4 <iterate_over_group_register()+0xc>)
+100001ca:	4903      	ldr	r1, [pc, #12]	@ (100001d8 <iterate_over_group_register()+0x10>)
+100001cc:	4a03      	ldr	r2, [pc, #12]	@ (100001dc <iterate_over_group_register()+0x14>)
+100001ce:	600b      	str	r3, [r1, #0]
+100001d0:	6013      	str	r3, [r2, #0]
+100001d2:	4770      	bx	lr
+100001d4:	091a0021 	.word	0x091a0021
+100001d8:	20030000 	.word	0x20030000
+100001dc:	20031000 	.word	0x20031000

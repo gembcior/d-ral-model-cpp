@@ -1,0 +1,13 @@
+Disassembly of section .text:
+
+100001ac <register_value_type_access()>:
+100001ac:	4b05      	ldr	r3, [pc, #20]	@ (100001c4 <register_value_type_access()+0x18>)
+100001ae:	6a1a      	ldr	r2, [r3, #32]
+100001b0:	f012 0f01 	tst.w	r2, #1
+100001b4:	bf0c      	ite	eq
+100001b6:	f44f 721e 	moveq.w	r2, #632	@ 0x278
+100001ba:	f44f 720d 	movne.w	r2, #564	@ 0x234
+100001be:	641a      	str	r2, [r3, #64]	@ 0x40
+100001c0:	4770      	bx	lr
+100001c2:	bf00      	nop
+100001c4:	20020000 	.word	0x20020000

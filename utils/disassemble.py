@@ -16,6 +16,8 @@ SYMBOLS = [
     "simple_group_register_write",
     "group_register_read_using_register_value_type",
     "group_register_write_using_register_value_type",
+    "register_value_type_access",
+    "iterate_over_group_register",
 ]
 
 APPS = [

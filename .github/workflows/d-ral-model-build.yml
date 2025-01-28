@@ -15,7 +15,7 @@ jobs:
       image: gembcior/d-ral-docker
     strategy:
       matrix:
-        platform::
+        platform:
           - cortex-m3
           - cortex-m4
 

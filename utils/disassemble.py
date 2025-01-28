@@ -40,12 +40,11 @@ def disassemble(elffile: Path, symbol: str) -> str:
 def disassemble_app(build_path: Path, data_path: Path, app: str):
     for_dissassembly = [(dir.name, list(dir.glob(f"*/**/{app}.elf"))[0]) for dir in build_path.iterdir() if dir.is_dir()]
     for platform, elffile in for_dissassembly:
-        click.echo(f"Disassembling symbols for {platform} platform...")
+        click.echo(f"Disassembling symbols from {click.style(elffile.name, fg='magenta')} for {click.style(platform, fg='blue')} platform...", color=True)
         for symbol in SYMBOLS:
-            click.echo(f"Disassembling {symbol} from {elffile}")
-            content = disassemble(elffile, f"{symbol}()")
+            click.echo(f"Disassembling {click.style(symbol, fg='green')}()...", color=True)
+            content = disassemble(elffile, f"{click.style(symbol, fg='green')}()")
             if len(content.splitlines()) <= 1:
-                click.echo(f"Symbol {symbol} not found in {elffile}")
                 continue
             with open(data_path / platform / f"{app.removeprefix('app-')}_{symbol}.txt", "w", encoding="utf-8") as f:
                 f.write(content)

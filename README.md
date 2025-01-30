@@ -2,8 +2,6 @@
 
 <h1 align="center">C++ model for D-RAL project</h1>
 
----
-
 ## What is it?
 The C++ model that is required to use the [D-RAL](https://github.com/gembcior/d-ral) project.
 
@@ -44,7 +42,7 @@ FetchContent_MakeAvailable(dral_model)
 ```
 
 ### Header files only
-Download the release package from the latest release or specific release.
+Download the package from latest or specific release.
 Package contains only the header files. Copy them to your project.
 
 #### Latest release

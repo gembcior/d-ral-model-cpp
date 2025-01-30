@@ -1,20 +1,25 @@
+import tempfile
 from pathlib import Path
 
 from robot.api.deco import keyword, library
 from robot.api.logger import info
 
 from renode import Renode
+from hexdump import hexdump
 
 
 @library
 class Emulation:
     ROBOT_AUTO_KEYWORDS = False
+    ROBOT_LIBRARY_SCOPE = "TEST"
 
     def __init__(self):
-        # self._emulator = Renode()
-        self._emulator = None
+        self._emulator = Renode()
         self._executable = None
         self._machine_description = None
+
+    def __del__(self):
+        self._emulator.exit()
 
     @keyword
     def set_executable(self, path: Path):
@@ -47,6 +52,10 @@ class Emulation:
         self._emulator.stop()
 
     @keyword
-    def dump_memory(self, address: int, size: int, file_path: Path):
-        info(f"Dumping memory from address {hex(address)} with size {hex(size)} to file {file_path}")
-        self._emulator.dump_memory(address, size, file_path)
+    def dump_memory(self, address: int, size: int) -> str:
+        info(f"Dumping ${size} bytes from ${address}")
+        with tempfile.NamedTemporaryFile() as f:
+            dumpfile = Path(f.name)
+            self._emulator.dump_memory(address, size, dumpfile)
+            memdump = hexdump(dumpfile)
+        return memdump

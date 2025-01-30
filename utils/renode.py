@@ -50,3 +50,6 @@ class Renode:
 
     def _execute_monitor_command(self, command: str) -> tuple[str, str]:
         return self.monitor.execute(command)
+
+    def exit(self):
+        self.emulation.clear()

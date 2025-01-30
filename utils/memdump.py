@@ -1,22 +1,16 @@
 from __future__ import annotations
 
-import subprocess
 import tempfile
 import time
 from pathlib import Path
 
 import click
+from hexdump import hexdump
 
 from renode import Renode
 
 DRAL_MEMORY = 0x20000000
 DRAL_SIZE = 0x80000
-
-
-def hexdump(binfile: Path) -> str:
-    """Return hexdump of a binary file"""
-    process = subprocess.run(["hexdump", "-v", str(binfile.expanduser().resolve())], capture_output=True, check=True)
-    return process.stdout.decode("utf-8")
 
 
 def emulate(platform: Path, app: Path, dumpfile: Path):

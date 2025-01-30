@@ -1,2 +1,2 @@
 click
-pyrenode3 @ git+https://github.com/antmicro/pyrenode3.git@3892655
+pyrenode3 @ git+https://github.com/antmicro/pyrenode3.git@b62c795

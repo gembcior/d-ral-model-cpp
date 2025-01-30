@@ -43,6 +43,7 @@ jobs:
           robot --pythonpath ./tests/libraries:./tests/resources:./utils --variable PLATFORM:${{ matrix.platform }} tests
 
       - name: Archive tests results
+        if: success() || failure()
         uses: actions/upload-artifact@v4
         with:
           name: robot-framework-results-${{ matrix.platform }}

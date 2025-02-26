@@ -51,6 +51,11 @@ class FieldModel
 public:
   using FieldType = FieldT;
 
+  [[nodiscard]] static constexpr auto getMask()
+  {
+    return Mask::getMask();
+  }
+
   template<typename... IndexT>
     requires IsReadable<AccessV>
   [[nodiscard]] static auto read(IndexT&&... index)

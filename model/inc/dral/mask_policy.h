@@ -77,7 +77,13 @@ public:
     const auto newValue{ (underlyingValue & ClearAbsolutMask) | updateValue };
     return newValue;
   }
+
+  [[nodiscard]] static constexpr auto getMask()
+  {
+    return Mask;
+  }
 };
+
 }  // namespace dral
 
 #endif  // DRAL_MASK_POLICY_H
